@@ -1,5 +1,6 @@
 import type { ResearchDepth, Research } from '@vibecast/types';
 import { db } from '@vibecast/database';
+import { claudeClient } from './claude-client';
 //import AgentDB from 'agentdb';
 import path from 'path';
 
@@ -161,8 +162,7 @@ export class ResearchOrchestrator {
   /**
    * Gather sources using multi-agent approach with parallel execution
    *
-   * Each agent focuses on a different aspect of the topic for comprehensive coverage.
-   * In production, this would use real AI models (Claude, GPT-4) or claude-flow swarm.
+   * Uses real Claude AI agents when API key is configured, otherwise falls back to simulation.
    */
   private async gatherSources(
     topic: string,
@@ -182,6 +182,83 @@ export class ResearchOrchestrator {
       'tools and technologies',
     ];
 
+    // Check if real AI is available
+    const useRealAI = claudeClient.isRealAIAvailable();
+
+    if (useRealAI) {
+      console.log('🤖 Using real Claude AI for research');
+      return this.gatherSourcesWithAI(topic, agentCount, focuses);
+    } else {
+      console.log('🔬 Using simulation mode (set ANTHROPIC_API_KEY for real AI)');
+      return this.gatherSourcesSimulation(topic, agentCount, focuses);
+    }
+  }
+
+  /**
+   * Gather sources using real Claude AI agents
+   */
+  private async gatherSourcesWithAI(
+    topic: string,
+    agentCount: number,
+    focuses: string[]
+  ): Promise<Array<{ title: string; url: string; relevance: number }>> {
+    // Deploy AI agents in parallel
+    const agentPromises = Array.from({ length: agentCount }, async (_, index) => {
+      const focus = focuses[index % focuses.length];
+      const agentId = `Agent-${index + 1}`;
+
+      console.log(`  🤖 ${agentId}: Researching ${topic} - ${focus}`);
+
+      try {
+        const response = await claudeClient.research({
+          topic,
+          focus,
+          depth: agentCount <= 4 ? 'quick' : agentCount <= 8 ? 'standard' : 'deep',
+        });
+
+        return response.sources.map(source => ({
+          ...source,
+          focus,
+          agentId,
+        }));
+      } catch (error) {
+        console.error(`  ❌ ${agentId} failed:`, error instanceof Error ? error.message : 'Unknown error');
+        // Return empty array on failure - other agents may succeed
+        return [];
+      }
+    });
+
+    // Wait for all agents to complete
+    const agentResults = await Promise.all(agentPromises);
+
+    // Flatten results from all agents
+    const allSources = agentResults.flat();
+
+    // Aggregate and deduplicate results
+    const uniqueSources = this.deduplicateSources(allSources);
+
+    // Sort by relevance (best sources first)
+    const sortedSources = uniqueSources
+      .sort((a, b) => b.relevance - a.relevance)
+      .slice(0, Math.max(3, Math.floor(agentCount * 2))); // Up to 2x sources per agent
+
+    console.log(`  ✅ Collected ${sortedSources.length} unique sources from AI agents`);
+
+    return sortedSources.map(({ title, url, relevance }) => ({
+      title,
+      url,
+      relevance,
+    }));
+  }
+
+  /**
+   * Gather sources using simulation (fallback when no API key)
+   */
+  private async gatherSourcesSimulation(
+    topic: string,
+    agentCount: number,
+    focuses: string[]
+  ): Promise<Array<{ title: string; url: string; relevance: number }>> {
     // Simulate parallel agent execution
     const agentPromises = Array.from({ length: agentCount }, async (_, index) => {
       const focus = focuses[index % focuses.length];
@@ -191,12 +268,6 @@ export class ResearchOrchestrator {
 
       // Simulate agent processing time (varies by agent workload)
       await this.simulateAgentWork(100 + Math.random() * 200);
-
-      // In production, each agent would:
-      // 1. Use web search APIs (Google, Bing, DuckDuckGo)
-      // 2. Scrape and analyze content
-      // 3. Score relevance and credibility
-      // 4. Extract key information
 
       return {
         title: `${topic} - ${focus.charAt(0).toUpperCase() + focus.slice(1)}`,
