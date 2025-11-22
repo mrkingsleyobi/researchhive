@@ -1,8 +1,8 @@
-# VibecastAI: Technical Architecture
+# ResearchHive: Technical Architecture
 
 ## 🏗️ System Architecture Overview
 
-VibecastAI follows a modern microservices architecture with event-driven communication, leveraging open-source platforms extended with AI capabilities.
+ResearchHive follows a modern microservices architecture with event-driven communication, leveraging open-source platforms extended with AI capabilities.
 
 ### High-Level Architecture Diagram
 
@@ -195,13 +195,13 @@ VibecastAI follows a modern microservices architecture with event-driven communi
 **2. n8n (Workflow Automation)**
 ```typescript
 // Custom nodes
-├── @vibecast/n8n-nodes-claude-flow
+├── @researchhive/n8n-nodes-claude-flow
 │   └── Agent orchestration workflows
-├── @vibecast/n8n-nodes-research
+├── @researchhive/n8n-nodes-research
 │   └── Multi-source research automation
-├── @vibecast/n8n-nodes-agentdb
+├── @researchhive/n8n-nodes-agentdb
 │   └── Vector database operations
-└── @vibecast/n8n-nodes-synthesis
+└── @researchhive/n8n-nodes-synthesis
     └── Knowledge synthesis pipelines
 ```
 
@@ -400,7 +400,7 @@ import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 
 const server = new Server({
-  name: 'vibecast-mcp',
+  name: 'researchhive-mcp',
   version: '1.0.0',
 });
 
@@ -463,7 +463,7 @@ import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 
 export async function createMCPClient() {
   const client = new Client({
-    name: 'vibecast-web',
+    name: 'researchhive-web',
     version: '1.0.0',
   });
 
@@ -947,7 +947,7 @@ volumes:
 
 **Namespace Structure:**
 ```
-vibecast-production
+researchhive-production
 ├── frontend (web app)
 ├── backend (APIs)
 ├── cms (Strapi)

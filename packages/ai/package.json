@@ -1,5 +1,5 @@
 {
-  "name": "@vibecast/ai",
+  "name": "@researchhive/ai",
   "version": "0.1.0",
   "private": true,
   "main": "./index.ts",
@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.70.1",
-    "@vibecast/database": "workspace:*",
-    "@vibecast/types": "workspace:*",
+    "@researchhive/database": "workspace:*",
+    "@researchhive/types": "workspace:*",
     "agentdb": "^1.6.1",
     "claude-flow": "latest",
     "zod": "^3.22.4"

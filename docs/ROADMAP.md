@@ -1,8 +1,8 @@
-# VibecastAI: Implementation Roadmap
+# ResearchHive: Implementation Roadmap
 
 ## Overview
 
-This roadmap outlines a **3-month sprint** to build a production-ready MVP of VibecastAI. The plan assumes a solo full-stack architect working full-time, with clear milestones and deliverables.
+This roadmap outlines a **3-month sprint** to build a production-ready MVP of ResearchHive. The plan assumes a solo full-stack architect working full-time, with clear milestones and deliverables.
 
 ---
 

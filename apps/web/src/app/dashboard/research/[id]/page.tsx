@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@vibecast/ui';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@researchhive/ui';
 import { trpc } from '@/lib/trpc';
 import { ArrowLeft, CheckCircle2, Loader2, XCircle } from 'lucide-react';
 

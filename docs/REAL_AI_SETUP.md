@@ -6,7 +6,7 @@
 
 ## Overview
 
-VibecastAI now supports **real Claude AI-powered research** using the Anthropic API. The system intelligently uses real AI when an API key is configured, or gracefully falls back to simulation mode for development.
+ResearchHive now supports **real Claude AI-powered research** using the Anthropic API. The system intelligently uses real AI when an API key is configured, or gracefully falls back to simulation mode for development.
 
 ## Quick Start
 
@@ -169,7 +169,7 @@ Each agent:
 ### Using the Claude Client Directly
 
 ```typescript
-import { claudeClient } from '@vibecast/ai/services/claude-client';
+import { claudeClient } from '@researchhive/ai/services/claude-client';
 
 // Check if real AI is available
 if (claudeClient.isRealAIAvailable()) {

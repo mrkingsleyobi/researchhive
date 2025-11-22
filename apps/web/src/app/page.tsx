@@ -3,10 +3,10 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
       <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm">
         <h1 className="text-4xl font-bold text-center mb-8">
-          Welcome to VibecastAI
+          Welcome to ResearchHive
         </h1>
         <p className="text-center text-xl text-muted-foreground mb-12">
-          AI-Powered Content Intelligence Platform
+          AI-Powered Research Platform with Multi-Agent Intelligence
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">

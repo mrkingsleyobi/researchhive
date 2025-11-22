@@ -1,16 +1,16 @@
-# VibecastAI: Intelligent Content Research & Knowledge Synthesis Platform
+# ResearchHive: Intelligent Content Research & Knowledge Synthesis Platform
 
 ## 🎯 Project Name & Domain
-**VibecastAI** (vibecast.ai - domain availability to be verified)
+**ResearchHive** (researchhive.ai - domain availability to be verified)
 
-Alternative domains: vibecast-ai.com, vibecast.io, getvibcast.ai
+Alternative domains: researchhive-ai.com, researchhive.io, getvibcast.ai
 
 ## 📋 Executive Summary
 
-**VibecastAI** is an AI-powered content intelligence platform that revolutionizes how content creators, researchers, and knowledge workers discover, analyze, and synthesize information from multiple sources. It combines advanced AI agent orchestration, vector-based knowledge management, and real-time collaborative research to transform scattered information into actionable insights.
+**ResearchHive** is an AI-powered content intelligence platform that revolutionizes how content creators, researchers, and knowledge workers discover, analyze, and synthesize information from multiple sources. It combines advanced AI agent orchestration, vector-based knowledge management, and real-time collaborative research to transform scattered information into actionable insights.
 
 ### Elevator Pitch
-"VibecastAI is the intelligent research assistant that replaces 20+ browser tabs and hours of manual research. Our AI agents automatically gather, analyze, and synthesize information from multiple sources, delivering structured insights in minutes instead of hours - perfect for content creators, researchers, and teams who need deep knowledge fast."
+"ResearchHive is the intelligent research assistant that replaces 20+ browser tabs and hours of manual research. Our AI agents automatically gather, analyze, and synthesize information from multiple sources, delivering structured insights in minutes instead of hours - perfect for content creators, researchers, and teams who need deep knowledge fast."
 
 ## 🎯 Real-World Problem & Market Opportunity
 
@@ -58,7 +58,7 @@ Alternative domains: vibecast-ai.com, vibecast.io, getvibcast.ai
 
 ## 💎 Unique Value Proposition
 
-### What Makes VibecastAI Different
+### What Makes ResearchHive Different
 
 **1. Multi-Agent Swarm Intelligence**
 - Unlike single-agent tools (ChatGPT, Perplexity), we deploy specialized AI agents for different research tasks
@@ -87,7 +87,7 @@ Alternative domains: vibecast-ai.com, vibecast.io, getvibcast.ai
 
 ### Competitive Advantage Over Existing Solutions
 
-| Feature | VibecastAI | Perplexity | ChatGPT | Notion AI | Traditional Tools |
+| Feature | ResearchHive | Perplexity | ChatGPT | Notion AI | Traditional Tools |
 |---------|------------|-----------|---------|-----------|-------------------|
 | Multi-source synthesis | ✅ Advanced | ✅ Basic | ❌ | ❌ | ❌ |
 | Source traceability | ✅ Full lineage | ✅ Links | ❌ | ❌ | ✅ Manual |
@@ -138,7 +138,7 @@ We actively contribute to:
 - Open-source core on GitHub
 - Comprehensive documentation site (Docusaurus)
 - Discord community for contributors
-- Weekly live coding sessions (Vibecast!)
+- Weekly live coding sessions (ResearchHive!)
 - Initial integrations with popular tools
 
 **Phase 2 (Months 4-6): Ecosystem Growth**
@@ -255,7 +255,7 @@ We actively contribute to:
 
 ## 🎓 Learning Outcomes
 
-Through building VibecastAI, you'll gain hands-on experience with:
+Through building ResearchHive, you'll gain hands-on experience with:
 
 **Advanced Architecture Patterns:**
 - Multi-agent systems and swarm intelligence

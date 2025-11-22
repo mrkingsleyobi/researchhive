@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Button } from '@vibecast/ui';
+import { Button } from '@researchhive/ui';
 import { LogOut, User } from 'lucide-react';
 
 interface UserButtonProps {

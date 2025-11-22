@@ -1,5 +1,5 @@
 {
-  "name": "@vibecast/database",
+  "name": "@researchhive/database",
   "version": "0.1.0",
   "private": true,
   "main": "./index.ts",

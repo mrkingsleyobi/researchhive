@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@vibecast/ui';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@researchhive/ui';
 import { Plus, Search, TrendingUp, Clock, CheckCircle, Loader2 } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 

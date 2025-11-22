@@ -1,21 +1,21 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import type { Context } from '../context';
-import { researchOrchestrator } from '@vibecast/ai';
-import { db } from '@vibecast/database';
+import { researchOrchestrator } from '@researchhive/ai';
+import { db } from '@researchhive/database';
 
 const t = initTRPC.context<Context>().create();
 
 // Helper to get or create a default user (temporary until auth is implemented)
 async function getDefaultUser() {
   let user = await db.user.findFirst({
-    where: { email: 'demo@vibecast.ai' },
+    where: { email: 'demo@researchhive.ai' },
   });
 
   if (!user) {
     user = await db.user.create({
       data: {
-        email: 'demo@vibecast.ai',
+        email: 'demo@researchhive.ai',
         name: 'Demo User',
         role: 'USER',
       },

@@ -1,4 +1,4 @@
-# VibecastAI: Product Requirements Document (PRD)
+# ResearchHive: Product Requirements Document (PRD)
 
 **Version:** 1.0.0
 **Last Updated:** 2025-11-22
@@ -33,7 +33,7 @@
 
 ## 1. Executive Summary
 
-VibecastAI is an AI-powered content intelligence platform that automates research, analysis, and knowledge synthesis. By leveraging multi-agent swarm orchestration, vector-based memory, and advanced NLP models, we reduce research time from hours to minutes while maintaining source traceability and collaborative capabilities.
+ResearchHive is an AI-powered content intelligence platform that automates research, analysis, and knowledge synthesis. By leveraging multi-agent swarm orchestration, vector-based memory, and advanced NLP models, we reduce research time from hours to minutes while maintaining source traceability and collaborative capabilities.
 
 ### Key Objectives
 - **Reduce research time by 85%** (6 hours → 50 minutes average)
@@ -466,7 +466,7 @@ Acceptance Criteria:
 **US-4.2: API Integration**
 ```
 As a developer
-I want to integrate VibecastAI into my app
+I want to integrate ResearchHive into my app
 So that I can add research capabilities
 
 Acceptance Criteria:
@@ -1080,24 +1080,24 @@ plugins/
 
 **Custom Nodes:**
 ```typescript
-// nodes/VibecastAI/ResearchNode.ts
+// nodes/ResearchHive/ResearchNode.ts
 import { INodeType, INodeTypeDescription } from 'n8n-workflow';
 
 export class ResearchNode implements INodeType {
   description: INodeTypeDescription = {
-    displayName: 'VibecastAI Research',
-    name: 'vibecastResearch',
+    displayName: 'ResearchHive Research',
+    name: 'researchhiveResearch',
     group: ['transform'],
     version: 1,
-    description: 'Trigger AI research using VibecastAI',
+    description: 'Trigger AI research using ResearchHive',
     defaults: {
-      name: 'VibecastAI Research',
+      name: 'ResearchHive Research',
     },
     inputs: ['main'],
     outputs: ['main'],
     credentials: [
       {
-        name: 'vibecastApi',
+        name: 'researchhiveApi',
         required: true,
       },
     ],
@@ -1147,7 +1147,7 @@ export class ResearchNode implements INodeType {
 
       const response = await this.helpers.request({
         method: 'POST',
-        url: 'https://api.vibecast.ai/v1/research',
+        url: 'https://api.researchhive.ai/v1/research',
         body: { topic, depth, sources },
         json: true,
       });
@@ -1192,7 +1192,7 @@ export async function enrichUserToken(userId: string) {
   const user = await db.user.findUnique({ where: { id: userId } });
 
   return {
-    'https://vibecast.ai/claims': {
+    'https://researchhive.ai/claims': {
       role: user.role,
       teamId: user.teamId,
       permissions: await getUserPermissions(userId),
@@ -1350,7 +1350,7 @@ services:
 - GraphQL subscription improvements
 
 **n8n:**
-- VibecastAI nodes package
+- ResearchHive nodes package
 - Multi-agent orchestration patterns
 - Enhanced error handling for AI workflows
 - Webhook retry improvements
@@ -1780,7 +1780,7 @@ import { z } from 'zod';
 
 const server = new Server(
   {
-    name: 'vibecast-mcp-server',
+    name: 'researchhive-mcp-server',
     version: '1.0.0',
   },
   {
@@ -1929,13 +1929,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 server.setRequestHandler(ListResourcesRequestSchema, async () => ({
   resources: [
     {
-      uri: 'vibecast://research/recent',
+      uri: 'researchhive://research/recent',
       name: 'Recent Research Projects',
       description: 'Last 10 research projects',
       mimeType: 'application/json',
     },
     {
-      uri: 'vibecast://knowledge-graph/entities',
+      uri: 'researchhive://knowledge-graph/entities',
       name: 'Knowledge Graph Entities',
       description: 'All entities in knowledge graph',
       mimeType: 'application/json',
@@ -2003,7 +2003,7 @@ export class MCPClient {
   async connect() {
     this.client = new Client(
       {
-        name: 'vibecast-web-client',
+        name: 'researchhive-web-client',
         version: '1.0.0',
       },
       {
@@ -2143,7 +2143,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // Create MCP client
   const client = new Client(
     {
-      name: 'vibecast-vscode',
+      name: 'researchhive-vscode',
       version: '1.0.0',
     },
     {
@@ -2154,14 +2154,14 @@ export async function activate(context: vscode.ExtensionContext) {
   // Connect to local MCP server
   const transport = new StdioClientTransport({
     command: 'npx',
-    args: ['vibecast-mcp-server', '--stdio'],
+    args: ['researchhive-mcp-server', '--stdio'],
   });
 
   await client.connect(transport);
 
   // Command: Research Selection
   const researchCommand = vscode.commands.registerCommand(
-    'vibecast.researchSelection',
+    'researchhive.researchSelection',
     async () => {
       const editor = vscode.window.activeTextEditor;
       if (!editor) return;

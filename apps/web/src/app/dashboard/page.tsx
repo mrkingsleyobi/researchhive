@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@vibecast/ui';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@researchhive/ui';
 import { Activity, Search, Users, Zap } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 

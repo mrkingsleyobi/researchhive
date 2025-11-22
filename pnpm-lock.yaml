@@ -41,15 +41,15 @@ importers:
       '@fastify/rate-limit':
         specifier: ^9.0.1
         version: 9.1.0
+      '@researchhive/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
+      '@researchhive/database':
+        specifier: workspace:*
+        version: link:../../packages/database
       '@trpc/server':
         specifier: ^10.45.0
         version: 10.45.2
-      '@vibecast/ai':
-        specifier: workspace:*
-        version: link:../../packages/ai
-      '@vibecast/database':
-        specifier: workspace:*
-        version: link:../../packages/database
       dotenv:
         specifier: ^16.3.1
         version: 16.6.1
@@ -78,6 +78,12 @@ importers:
       '@logto/next':
         specifier: ^4.2.6
         version: 4.2.6(next@14.0.4)
+      '@researchhive/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@researchhive/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@tanstack/react-query':
         specifier: ^5.17.9
         version: 5.90.10(react@18.3.1)
@@ -90,12 +96,6 @@ importers:
       '@trpc/server':
         specifier: ^10.45.0
         version: 10.45.2
-      '@vibecast/types':
-        specifier: workspace:*
-        version: link:../../packages/types
-      '@vibecast/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       lucide-react:
         specifier: ^0.303.0
         version: 0.303.0(react@18.3.1)
@@ -145,10 +145,10 @@ importers:
       '@anthropic-ai/sdk':
         specifier: ^0.70.1
         version: 0.70.1(zod@3.25.76)
-      '@vibecast/database':
+      '@researchhive/database':
         specifier: workspace:*
         version: link:../database
-      '@vibecast/types':
+      '@researchhive/types':
         specifier: workspace:*
         version: link:../types
       agentdb:

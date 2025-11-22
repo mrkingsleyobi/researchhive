@@ -1,8 +1,8 @@
 {
-  "name": "vibecast-ai",
+  "name": "researchhive-ai",
   "version": "1.0.0",
   "private": true,
-  "description": "AI-Powered Content Intelligence Platform",
+  "description": "AI-Powered Research Platform with Multi-Agent Intelligence",
   "author": "Kingsley Obi",
   "license": "MIT",
   "workspaces": [

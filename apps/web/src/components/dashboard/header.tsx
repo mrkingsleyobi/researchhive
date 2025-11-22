@@ -1,7 +1,7 @@
 'use client';
 
 import { Bell, Search } from 'lucide-react';
-import { Button, Input } from '@vibecast/ui';
+import { Button, Input } from '@researchhive/ui';
 import { UserButton } from '../auth/user-button';
 
 export function Header() {

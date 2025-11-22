@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@vibecast/ui';
+import { cn } from '@researchhive/ui';
 import {
   Home,
   Search,
@@ -29,10 +29,10 @@ export function Sidebar() {
       <div className="flex flex-col h-full">
         <div className="p-6">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-            VibecastAI
+            ResearchHive
           </h1>
           <p className="text-xs text-muted-foreground mt-1">
-            Content Intelligence Platform
+            Research Intelligence Platform
           </p>
         </div>
 

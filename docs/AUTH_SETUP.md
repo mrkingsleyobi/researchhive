@@ -1,10 +1,10 @@
 # Authentication Setup Guide
 
-This guide explains how to set up Logto authentication for VibecastAI.
+This guide explains how to set up Logto authentication for ResearchHive.
 
 ## Quick Start (Demo Mode)
 
-The application currently runs in **demo mode** with mock credentials. All users share the same demo account (`demo@vibecast.ai`).
+The application currently runs in **demo mode** with mock credentials. All users share the same demo account (`demo@researchhive.ai`).
 
 To enable real authentication, follow the steps below.
 
@@ -23,7 +23,7 @@ To enable real authentication, follow the steps below.
 1. In your Logto Console, go to **Applications**
 2. Click **Create Application**
 3. Choose **Next.js** as the framework
-4. Give it a name (e.g., "VibecastAI")
+4. Give it a name (e.g., "ResearchHive")
 5. Click **Create**
 
 ### 3. Configure Application Settings

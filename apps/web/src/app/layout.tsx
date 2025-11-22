@@ -6,7 +6,7 @@ import { TRPCProvider } from '@/lib/trpc-provider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'VibecastAI - AI-Powered Content Intelligence',
+  title: 'ResearchHive - AI-Powered Research Platform',
   description: 'Transform scattered information into actionable insights with multi-agent swarm intelligence',
 }
 

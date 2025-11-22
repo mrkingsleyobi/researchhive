@@ -1,4 +1,4 @@
-# VibecastAI: Technical Blog Post Ideas
+# ResearchHive: Technical Blog Post Ideas
 
 ## Content Strategy for Thought Leadership
 
@@ -45,7 +45,7 @@ Senior engineers, CTOs, startup founders, cost-conscious developers
 ### Call to Action
 - GitHub repo with router implementation
 - Join discussion on cost optimization strategies
-- Try VibecastAI demo
+- Try ResearchHive demo
 
 ### Estimated Impact
 - 10K+ views
@@ -395,7 +395,7 @@ Backend engineers, database architects, ML engineers
 
 ## Bonus: Video Content Ideas
 
-### YouTube Series: "Building VibecastAI from Scratch"
+### YouTube Series: "Building ResearchHive from Scratch"
 
 **Episode 1:** Project setup and architecture overview (20 min)
 **Episode 2:** Multi-agent orchestration with claude-flow (30 min)
@@ -454,7 +454,7 @@ Backend engineers, database architects, ML engineers
 - AI Engineer Podcast
 
 **Key Talking Points:**
-- Journey building VibecastAI
+- Journey building ResearchHive
 - Open-source vs proprietary decisions
 - Cost optimization strategies
 - Multi-agent architecture patterns

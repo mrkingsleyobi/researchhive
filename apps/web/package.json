@@ -1,5 +1,5 @@
 {
-  "name": "@vibecast/web",
+  "name": "@researchhive/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -15,8 +15,8 @@
     "@trpc/client": "^10.45.0",
     "@trpc/react-query": "^10.45.0",
     "@trpc/server": "^10.45.0",
-    "@vibecast/types": "workspace:*",
-    "@vibecast/ui": "workspace:*",
+    "@researchhive/types": "workspace:*",
+    "@researchhive/ui": "workspace:*",
     "lucide-react": "^0.303.0",
     "next": "14.0.4",
     "react": "^18.2.0",

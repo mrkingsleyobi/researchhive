@@ -1,6 +1,6 @@
 # Claude-Flow Integration Guide
 
-This document explains how to integrate the full claude-flow swarm orchestration into VibecastAI.
+This document explains how to integrate the full claude-flow swarm orchestration into ResearchHive.
 
 ## Current Implementation
 

@@ -1,5 +1,5 @@
 {
-  "name": "@vibecast/ui",
+  "name": "@researchhive/ui",
   "version": "0.1.0",
   "private": true,
   "main": "./index.tsx",

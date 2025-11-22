@@ -1,5 +1,5 @@
-import type { ResearchDepth, Research } from '@vibecast/types';
-import { db } from '@vibecast/database';
+import type { ResearchDepth, Research } from '@researchhive/types';
+import { db } from '@researchhive/database';
 import { claudeClient } from './claude-client';
 //import AgentDB from 'agentdb';
 import path from 'path';
