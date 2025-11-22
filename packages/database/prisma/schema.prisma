@@ -1,0 +1,108 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  researches Research[]
+  teams      TeamMember[]
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  USER
+  VIEWER
+}
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members    TeamMember[]
+  researches Research[]
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id     String @id @default(cuid())
+  teamId String
+  userId String
+  role   String @default("member")
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@map("team_members")
+}
+
+model Research {
+  id          String         @id @default(cuid())
+  topic       String
+  description String?
+  depth       ResearchDepth  @default(STANDARD)
+  status      ResearchStatus @default(PENDING)
+  sources     Json?
+  findings    Json?
+  metadata    Json?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  teamId String?
+  team   Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  citations Citation[]
+
+  @@map("researches")
+}
+
+enum ResearchDepth {
+  QUICK
+  STANDARD
+  DEEP
+}
+
+enum ResearchStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+model Citation {
+  id         String   @id @default(cuid())
+  title      String
+  url        String
+  source     String
+  credibility Float?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  researchId String
+  research   Research @relation(fields: [researchId], references: [id], onDelete: Cascade)
+
+  @@map("citations")
+}
