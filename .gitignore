@@ -69,3 +69,6 @@ uploads/
 
 # Build artifacts
 *.tsbuildinfo
+
+# Claude Flow
+.claude-flow/
