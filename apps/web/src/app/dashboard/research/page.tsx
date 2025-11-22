@@ -2,21 +2,14 @@
 
 import { useRouter } from 'next/navigation';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@vibecast/ui';
-import { Plus, Search, TrendingUp, Clock, CheckCircle } from 'lucide-react';
+import { Plus, Search, TrendingUp, Clock, CheckCircle, Loader2 } from 'lucide-react';
+import { trpc } from '@/lib/trpc';
 
 export default function ResearchPage() {
   const router = useRouter();
 
-  // Mock recent research for now - will be replaced with actual API call
-  const recentResearch = [
-    {
-      id: 'sample-1',
-      topic: 'AI trends in healthcare 2025',
-      status: 'completed',
-      createdAt: new Date().toISOString(),
-      sourcesCount: 15,
-    },
-  ];
+  // Fetch research from database
+  const { data: researches, isLoading } = trpc.research.list.useQuery({ limit: 10 });
 
   return (
     <div className="space-y-6">
@@ -41,9 +34,9 @@ export default function ResearchPage() {
             <Search className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{researches?.length || 0}</div>
             <p className="text-xs text-muted-foreground">
-              +0 from last month
+              Total research projects
             </p>
           </CardContent>
         </Card>
@@ -54,7 +47,9 @@ export default function ResearchPage() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">
+              {researches?.filter(r => r.status === 'in_progress').length || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
               Active research projects
             </p>
@@ -67,7 +62,9 @@ export default function ResearchPage() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">
+              {researches?.filter(r => r.status === 'completed').length || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
               Successfully completed
             </p>
@@ -84,7 +81,12 @@ export default function ResearchPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {recentResearch.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12">
+              <Loader2 className="h-8 w-8 mx-auto text-muted-foreground animate-spin mb-4" />
+              <p className="text-muted-foreground">Loading research projects...</p>
+            </div>
+          ) : !researches || researches.length === 0 ? (
             <div className="text-center py-12">
               <TrendingUp className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-medium mb-2">No research projects yet</h3>
@@ -98,7 +100,7 @@ export default function ResearchPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {recentResearch.map((research) => (
+              {researches.map((research) => (
                 <div
                   key={research.id}
                   className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"

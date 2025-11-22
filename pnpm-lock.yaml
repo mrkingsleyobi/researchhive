@@ -47,6 +47,9 @@ importers:
       '@vibecast/ai':
         specifier: workspace:*
         version: link:../../packages/ai
+      '@vibecast/database':
+        specifier: workspace:*
+        version: link:../../packages/database
       dotenv:
         specifier: ^16.3.1
         version: 16.6.1
@@ -136,6 +139,9 @@ importers:
 
   packages/ai:
     dependencies:
+      '@vibecast/database':
+        specifier: workspace:*
+        version: link:../database
       '@vibecast/types':
         specifier: workspace:*
         version: link:../types

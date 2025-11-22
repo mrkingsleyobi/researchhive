@@ -17,7 +17,8 @@
     "@fastify/rate-limit": "^9.0.1",
     "zod": "^3.22.4",
     "dotenv": "^16.3.1",
-    "@vibecast/ai": "workspace:*"
+    "@vibecast/ai": "workspace:*",
+    "@vibecast/database": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20",

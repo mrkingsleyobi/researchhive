@@ -1,4 +1,5 @@
 import type { ResearchDepth, Research } from '@vibecast/types';
+import { db } from '@vibecast/database';
 //import AgentDB from 'agentdb';
 import path from 'path';
 
@@ -46,15 +47,13 @@ export class ResearchOrchestrator {
   /**
    * Start a new research task with multi-agent swarm
    */
-  async startResearch(config: ResearchConfig): Promise<string> {
-    const researchId = Math.random().toString(36).substr(2, 9);
-
+  async startResearch(config: ResearchConfig, databaseId: string): Promise<string> {
     console.log(`🔬 Starting research: ${config.topic}`);
     console.log(`📊 Depth: ${config.depth}`);
-    console.log(`🆔 Research ID: ${researchId}`);
+    console.log(`🆔 Research ID: ${databaseId}`);
 
     // Initialize research progress tracking
-    this.activeResearch.set(researchId, {
+    this.activeResearch.set(databaseId, {
       status: 'in_progress',
       progress: 0,
       currentStep: 'Initializing agents',
@@ -63,16 +62,22 @@ export class ResearchOrchestrator {
     });
 
     // Run research asynchronously
-    this.executeResearch(researchId, config).catch((error) => {
-      console.error(`Research ${researchId} failed:`, error);
-      this.activeResearch.set(researchId, {
+    this.executeResearch(databaseId, config).catch(async (error) => {
+      console.error(`Research ${databaseId} failed:`, error);
+      this.activeResearch.set(databaseId, {
         status: 'failed',
         progress: 0,
         currentStep: 'Error: ' + error.message,
       });
+
+      // Update database
+      await db.research.update({
+        where: { id: databaseId },
+        data: { status: 'FAILED' },
+      });
     });
 
-    return researchId;
+    return databaseId;
   }
 
   /**
@@ -126,6 +131,31 @@ export class ResearchOrchestrator {
 
     // Store complete results in cache
     this.resultsCache.set(researchId, results);
+
+    // Save to database
+    await db.research.update({
+      where: { id: researchId },
+      data: {
+        status: 'COMPLETED',
+        findings: JSON.stringify(results),
+        sources: JSON.stringify(results.sources),
+      },
+    });
+
+    // Create citations
+    for (const source of results.sources) {
+      await db.citation.create({
+        data: {
+          researchId,
+          title: source.title,
+          url: source.url,
+          source: 'web',
+          credibility: source.credibility,
+        },
+      });
+    }
+
+    console.log(`✅ Research ${researchId} saved to database`);
   }
 
   /**

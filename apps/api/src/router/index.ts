@@ -2,8 +2,28 @@ import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import type { Context } from '../context';
 import { researchOrchestrator } from '@vibecast/ai';
+import { db } from '@vibecast/database';
 
 const t = initTRPC.context<Context>().create();
+
+// Helper to get or create a default user (temporary until auth is implemented)
+async function getDefaultUser() {
+  let user = await db.user.findFirst({
+    where: { email: 'demo@vibecast.ai' },
+  });
+
+  if (!user) {
+    user = await db.user.create({
+      data: {
+        email: 'demo@vibecast.ai',
+        name: 'Demo User',
+        role: 'USER',
+      },
+    });
+  }
+
+  return user;
+}
 
 export const appRouter = t.router({
   health: t.procedure.query(() => {
@@ -22,7 +42,7 @@ export const appRouter = t.router({
       };
     }),
 
-  // Research endpoints with AI orchestration
+  // Research endpoints with AI orchestration and database persistence
   research: t.router({
     create: t.procedure
       .input(z.object({
@@ -33,18 +53,32 @@ export const appRouter = t.router({
       .mutation(async ({ input }) => {
         console.log('🚀 Creating research:', input);
 
-        // Start research with AI orchestrator
-        const researchId = await researchOrchestrator.startResearch({
-          topic: input.topic,
-          depth: input.depth,
+        // Get default user (temporary until auth)
+        const user = await getDefaultUser();
+
+        // Create research in database
+        const research = await db.research.create({
+          data: {
+            topic: input.topic,
+            description: input.description,
+            depth: input.depth.toUpperCase(),
+            status: 'IN_PROGRESS',
+            userId: user.id,
+          },
         });
 
-        return {
-          id: researchId,
+        // Start research with AI orchestrator
+        researchOrchestrator.startResearch({
           topic: input.topic,
           depth: input.depth,
+        }, research.id); // Pass database ID
+
+        return {
+          id: research.id,
+          topic: research.topic,
+          depth: input.depth,
           status: 'in_progress',
-          createdAt: new Date().toISOString(),
+          createdAt: research.createdAt.toISOString(),
         };
       }),
 
@@ -62,8 +96,50 @@ export const appRouter = t.router({
         id: z.string(),
       }))
       .query(async ({ input }) => {
-        const results = await researchOrchestrator.getResults(input.id);
-        return results;
+        // Try to get from orchestrator first (for in-progress research)
+        const cachedResults = await researchOrchestrator.getResults(input.id);
+        if (cachedResults) {
+          return cachedResults;
+        }
+
+        // Otherwise get from database
+        const research = await db.research.findUnique({
+          where: { id: input.id },
+          include: { citations: true },
+        });
+
+        if (!research || !research.findings) {
+          return null;
+        }
+
+        // Parse findings from database
+        return JSON.parse(research.findings);
+      }),
+
+    list: t.procedure
+      .input(z.object({
+        limit: z.number().optional().default(10),
+      }))
+      .query(async ({ input }) => {
+        const user = await getDefaultUser();
+
+        const researches = await db.research.findMany({
+          where: { userId: user.id },
+          orderBy: { createdAt: 'desc' },
+          take: input.limit,
+          include: {
+            citations: true,
+          },
+        });
+
+        return researches.map(r => ({
+          id: r.id,
+          topic: r.topic,
+          status: r.status.toLowerCase(),
+          depth: r.depth.toLowerCase(),
+          createdAt: r.createdAt.toISOString(),
+          sourcesCount: r.citations.length,
+        }));
       }),
 
     search: t.procedure
