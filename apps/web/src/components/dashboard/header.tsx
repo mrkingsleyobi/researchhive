@@ -2,8 +2,13 @@
 
 import { Bell, Search } from 'lucide-react';
 import { Button, Input } from '@vibecast/ui';
+import { UserButton } from '../auth/user-button';
 
 export function Header() {
+  // TODO: Get actual user from Logto session
+  // For demo purposes, showing as not logged in
+  const user = null; // Replace with: await getLogtoContext().getIdTokenClaims();
+
   return (
     <header className="h-16 border-b border-border bg-card px-6 flex items-center justify-between">
       <div className="flex-1 max-w-xl">
@@ -21,6 +26,7 @@ export function Header() {
         <Button variant="ghost" size="icon">
           <Bell className="h-5 w-5" />
         </Button>
+        <UserButton user={user} />
       </div>
     </header>
   );
