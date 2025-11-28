@@ -9,3 +9,12 @@ export type { EmbeddingsConfig } from './services/embeddings-service';
 
 export { CitationService, getCitationService } from './services/citation-service';
 export type { Citation, CitationStyle } from './services/citation-service';
+
+export { NERService, getNERService } from './services/ner-service';
+export type { NERConfig, NEREntity, NERResult } from './services/ner-service';
+
+export { SummarizationService, getSummarizationService } from './services/summarization-service';
+export type { SummarizationConfig, SummarizationResult } from './services/summarization-service';
+
+export { SentimentService, getSentimentService } from './services/sentiment-service';
+export type { SentimentConfig, SentimentResult, SentimentScore, EmotionResult } from './services/sentiment-service';
