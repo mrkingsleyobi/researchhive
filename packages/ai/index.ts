@@ -18,3 +18,9 @@ export type { SummarizationConfig, SummarizationResult } from './services/summar
 
 export { SentimentService, getSentimentService } from './services/sentiment-service';
 export type { SentimentConfig, SentimentResult, SentimentScore, EmotionResult } from './services/sentiment-service';
+
+export { Neo4jService, initializeNeo4j, getNeo4jService } from './services/neo4j-service';
+export type { Neo4jConfig, KnowledgeNode, KnowledgeRelationship, GraphQuery } from './services/neo4j-service';
+
+export { MCPServer, MCPClient, getMCPServer, createMCPClient } from './services/mcp-service';
+export type { MCPTool, MCPResource, MCPPrompt, MCPServerConfig } from './services/mcp-service';
