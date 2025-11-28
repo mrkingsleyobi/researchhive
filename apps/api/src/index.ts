@@ -5,6 +5,8 @@ import rateLimit from '@fastify/rate-limit';
 import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
 import { appRouter } from './router';
 import { createContext } from './context';
+import { initializeWebSocket } from './websocket';
+import { initializeResearchOrchestrator } from '@researchhive/ai';
 
 const fastify = Fastify({
   logger: true,
@@ -49,6 +51,20 @@ async function main() {
     await fastify.listen({ port, host });
     console.log(`🚀 Server ready at http://${host}:${port}`);
     console.log(`📡 tRPC endpoint: http://${host}:${port}/trpc`);
+
+    // Initialize WebSocket service
+    const wsService = initializeWebSocket(fastify);
+    console.log(`🔌 WebSocket ready at ws://${host}:${port}/socket.io`);
+
+    // Initialize ResearchOrchestrator with WebSocket progress updates
+    initializeResearchOrchestrator((researchId, progress) => {
+      wsService.emitProgressUpdate({
+        researchId,
+        ...progress,
+        timestamp: new Date().toISOString(),
+      });
+    });
+    console.log('🔬 Research Orchestrator connected to WebSocket');
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

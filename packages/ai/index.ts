@@ -1,5 +1,5 @@
-export { ResearchOrchestrator, researchOrchestrator } from './services/research-orchestrator';
-export type { ResearchConfig, ResearchProgress, ResearchResult } from './services/research-orchestrator';
+export { ResearchOrchestrator, researchOrchestrator, initializeResearchOrchestrator, getResearchOrchestrator } from './services/research-orchestrator';
+export type { ResearchConfig, ResearchProgress, ResearchResult, ProgressEventEmitter } from './services/research-orchestrator';
 
 export { AgentDBService, getAgentDB, initializeAgentDB } from './services/agentdb-service';
 export type { AgentDBConfig, VectorDocument, SearchResult, Episode } from './services/agentdb-service';

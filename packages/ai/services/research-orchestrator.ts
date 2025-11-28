@@ -32,6 +32,11 @@ export interface ResearchResult {
   recommendations: string[];
 }
 
+export type ProgressEventEmitter = (
+  researchId: string,
+  progress: ResearchProgress
+) => void;
+
 /**
  * Orchestrates multi-agent research using claude-flow and AgentDB
  */
@@ -41,10 +46,12 @@ export class ResearchOrchestrator {
   private activeResearch: Map<string, ResearchProgress> = new Map();
   private resultsCache: Map<string, ResearchResult> = new Map();
   private initialized: boolean = false;
+  private progressEmitter?: ProgressEventEmitter;
 
-  constructor() {
+  constructor(progressEmitter?: ProgressEventEmitter) {
     this.agentDB = getAgentDB();
     this.embeddings = getEmbeddings();
+    this.progressEmitter = progressEmitter;
     this.initialize().catch(error => {
       console.error('Failed to initialize ResearchOrchestrator:', error);
     });
@@ -545,7 +552,7 @@ export class ResearchOrchestrator {
   }
 
   /**
-   * Update research progress
+   * Update research progress and emit WebSocket events
    */
   private updateProgress(
     researchId: string,
@@ -556,10 +563,17 @@ export class ResearchOrchestrator {
       progress: 0,
     };
 
-    this.activeResearch.set(researchId, {
+    const newProgress = {
       ...current,
       ...updates,
-    });
+    };
+
+    this.activeResearch.set(researchId, newProgress);
+
+    // Emit progress update via WebSocket if emitter is configured
+    if (this.progressEmitter) {
+      this.progressEmitter(researchId, newProgress);
+    }
   }
 
   /**
@@ -645,4 +659,24 @@ export class ResearchOrchestrator {
   }
 }
 
-export const researchOrchestrator = new ResearchOrchestrator();
+// Singleton instance - can be configured with progress emitter
+let researchOrchestratorInstance: ResearchOrchestrator | null = null;
+
+export function initializeResearchOrchestrator(
+  progressEmitter?: ProgressEventEmitter
+): ResearchOrchestrator {
+  if (!researchOrchestratorInstance) {
+    researchOrchestratorInstance = new ResearchOrchestrator(progressEmitter);
+  }
+  return researchOrchestratorInstance;
+}
+
+export function getResearchOrchestrator(): ResearchOrchestrator {
+  if (!researchOrchestratorInstance) {
+    researchOrchestratorInstance = new ResearchOrchestrator();
+  }
+  return researchOrchestratorInstance;
+}
+
+// Legacy export for backward compatibility
+export const researchOrchestrator = getResearchOrchestrator();
