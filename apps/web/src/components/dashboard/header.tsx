@@ -4,11 +4,20 @@ import { Bell, Search } from 'lucide-react';
 import { Button, Input } from '@researchhive/ui';
 import { UserButton } from '../auth/user-button';
 
-export function Header() {
-  // TODO: Get actual user from Logto session
-  // For demo purposes, showing as not logged in
-  const user = null; // Replace with: await getLogtoContext().getIdTokenClaims();
+interface User {
+  id: string;
+  email: string;
+  name?: string;
+  avatar?: string;
+  role?: string;
+}
 
+interface HeaderProps {
+  user: User | null;
+  isDemoMode?: boolean;
+}
+
+export function Header({ user, isDemoMode = false }: HeaderProps) {
   return (
     <header className="h-16 border-b border-border bg-card px-6 flex items-center justify-between">
       <div className="flex-1 max-w-xl">
@@ -23,6 +32,11 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-4">
+        {isDemoMode && (
+          <div className="text-xs px-2 py-1 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 rounded border border-yellow-500/20">
+            Demo Mode
+          </div>
+        )}
         <Button variant="ghost" size="icon">
           <Bell className="h-5 w-5" />
         </Button>

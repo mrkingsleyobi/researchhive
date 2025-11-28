@@ -1,7 +1,7 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import type { Context } from '../context';
-import { researchOrchestrator } from '@researchhive/ai';
+import { researchOrchestrator, getCitationService } from '@researchhive/ai';
 import { db } from '@researchhive/database';
 
 const t = initTRPC.context<Context>().create();
@@ -29,7 +29,7 @@ export const appRouter = t.router({
   health: t.procedure.query(() => {
     return {
       status: 'ok',
-      message: 'VibecastAI API is running',
+      message: 'ResearchHive API is running',
       timestamp: new Date().toISOString(),
     };
   }),
@@ -153,6 +153,70 @@ export const appRouter = t.router({
           input.limit
         );
         return results;
+      }),
+
+    // Citation export endpoints
+    exportCitations: t.procedure
+      .input(z.object({
+        researchId: z.string(),
+        style: z.enum(['apa', 'mla', 'chicago', 'harvard', 'bibtex', 'json']).default('apa'),
+      }))
+      .query(async ({ input }) => {
+        // Get research with citations
+        const research = await db.research.findUnique({
+          where: { id: input.researchId },
+          include: { citations: true },
+        });
+
+        if (!research) {
+          throw new Error('Research not found');
+        }
+
+        // Convert database citations to citation format
+        const citations = research.citations.map(c => ({
+          title: c.title,
+          url: c.url,
+          source: c.source,
+          credibility: c.credibility,
+          authors: [], // Can be enhanced to parse authors from metadata
+          publishedDate: undefined,
+          accessedDate: c.createdAt.toISOString(),
+        }));
+
+        // Export using citation service
+        const citationService = getCitationService();
+        const exported = citationService.exportCitations(
+          citations,
+          input.style,
+          `${research.topic}-citations`
+        );
+
+        return {
+          content: exported.content,
+          filename: exported.filename,
+          mimeType: exported.mimeType,
+          citationCount: citations.length,
+        };
+      }),
+
+    getCitations: t.procedure
+      .input(z.object({
+        researchId: z.string(),
+      }))
+      .query(async ({ input }) => {
+        const citations = await db.citation.findMany({
+          where: { researchId: input.researchId },
+          orderBy: { credibility: 'desc' },
+        });
+
+        return citations.map(c => ({
+          id: c.id,
+          title: c.title,
+          url: c.url,
+          source: c.source,
+          credibility: c.credibility,
+          createdAt: c.createdAt.toISOString(),
+        }));
       }),
   }),
 });

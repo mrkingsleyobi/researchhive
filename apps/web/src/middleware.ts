@@ -2,30 +2,43 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /**
- * Middleware to protect dashboard routes
+ * Middleware to protect dashboard routes with Logto authentication
  *
- * For now, this is a placeholder. Once Logto is fully configured with real credentials,
- * you can use Logto's middleware to protect routes:
- *
- * import { withLogtoApiRoute } from '@logto/next/server-actions';
- *
- * For demo purposes, we're allowing all requests to pass through.
+ * In demo mode (when LOGTO_APP_ID = 'researchhive-app'), authentication is bypassed.
+ * In production mode, users must authenticate via Logto.
  */
 export function middleware(request: NextRequest) {
-  // TODO: Add Logto authentication check when using real credentials
-  // For now, allow all requests
-
-  // Example of how to protect routes (commented out for demo):
-  /*
   const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard');
   const isAuthRoute = request.nextUrl.pathname.startsWith('/api/logto');
+  const isApiRoute = request.nextUrl.pathname.startsWith('/api') && !isAuthRoute;
 
-  if (isProtectedRoute && !isAuthRoute) {
-    // Check if user is authenticated
-    // If not, redirect to sign-in
-    // return NextResponse.redirect(new URL('/api/logto/sign-in', request.url));
+  // Skip middleware for auth routes and non-protected routes
+  if (!isProtectedRoute || isAuthRoute) {
+    return NextResponse.next();
   }
-  */
+
+  // Check if we're in demo mode
+  const isDemoMode = process.env.LOGTO_APP_ID === 'researchhive-app' ||
+                     !process.env.LOGTO_APP_ID ||
+                     process.env.LOGTO_APP_ID === 'your-app-id';
+
+  if (isDemoMode) {
+    // Demo mode: Allow access without authentication
+    const response = NextResponse.next();
+    response.headers.set('X-Demo-Mode', 'true');
+    return response;
+  }
+
+  // Production mode: Check authentication
+  // In a real implementation, you would check the Logto session cookie here
+  const logtoSession = request.cookies.get('logto_session');
+
+  if (!logtoSession) {
+    // No session found, redirect to sign-in
+    const signInUrl = new URL('/api/logto/sign-in', request.url);
+    signInUrl.searchParams.set('redirect_uri', request.nextUrl.pathname);
+    return NextResponse.redirect(signInUrl);
+  }
 
   return NextResponse.next();
 }

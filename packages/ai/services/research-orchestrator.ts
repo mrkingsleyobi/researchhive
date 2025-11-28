@@ -1,7 +1,8 @@
 import type { ResearchDepth, Research } from '@researchhive/types';
 import { db } from '@researchhive/database';
 import { claudeClient } from './claude-client';
-//import AgentDB from 'agentdb';
+import { AgentDBService, initializeAgentDB, getAgentDB } from './agentdb-service';
+import { EmbeddingsService, getEmbeddings } from './embeddings-service';
 import path from 'path';
 
 export interface ResearchConfig {
@@ -35,14 +36,37 @@ export interface ResearchResult {
  * Orchestrates multi-agent research using claude-flow and AgentDB
  */
 export class ResearchOrchestrator {
-  //private agentDB: AgentDB;
+  private agentDB: AgentDBService;
+  private embeddings: EmbeddingsService;
   private activeResearch: Map<string, ResearchProgress> = new Map();
   private resultsCache: Map<string, ResearchResult> = new Map();
+  private initialized: boolean = false;
 
   constructor() {
-    // TODO: Initialize AgentDB for knowledge persistence
-    // For now, using in-memory storage
+    this.agentDB = getAgentDB();
+    this.embeddings = getEmbeddings();
+    this.initialize().catch(error => {
+      console.error('Failed to initialize ResearchOrchestrator:', error);
+    });
     console.log('🧠 Research Orchestrator initialized');
+  }
+
+  /**
+   * Initialize AgentDB for knowledge persistence
+   */
+  private async initialize(): Promise<void> {
+    if (this.initialized) {
+      return;
+    }
+
+    try {
+      await this.agentDB.initialize();
+      this.initialized = true;
+      console.log('✅ AgentDB initialized for vector search and episodic memory');
+    } catch (error) {
+      console.warn('⚠️  AgentDB initialization failed, continuing without vector search:', error);
+      // Continue without AgentDB - graceful degradation
+    }
   }
 
   /**
@@ -335,7 +359,7 @@ export class ResearchOrchestrator {
   }
 
   /**
-   * Store findings (temporarily in-memory, will use AgentDB later)
+   * Store findings in AgentDB for semantic search and future retrieval
    */
   private async storeFindings(
     researchId: string,
@@ -343,7 +367,70 @@ export class ResearchOrchestrator {
     sources: Array<{ title: string; url: string; relevance: number }>
   ): Promise<void> {
     console.log(`💾 Storing ${sources.length} sources for research ${researchId}`);
-    // TODO: Implement AgentDB storage
+
+    if (!this.initialized) {
+      console.warn('⚠️  AgentDB not initialized, skipping vector storage');
+      return;
+    }
+
+    try {
+      // Generate embedding for the research topic
+      const topicEmbedding = await this.embeddings.generateEmbedding(topic);
+
+      // Store the research in AgentDB
+      await this.agentDB.insert({
+        id: researchId,
+        vector: topicEmbedding,
+        metadata: {
+          topic,
+          sourceCount: sources.length,
+          timestamp: Date.now(),
+          sources: sources.map(s => ({
+            title: s.title,
+            url: s.url,
+            relevance: s.relevance,
+          })),
+        },
+      });
+
+      // Store each source individually for granular search
+      for (const source of sources) {
+        const sourceText = `${source.title}`;
+        const sourceEmbedding = await this.embeddings.generateEmbedding(sourceText);
+
+        await this.agentDB.insert({
+          id: `${researchId}-source-${source.url}`,
+          vector: sourceEmbedding,
+          metadata: {
+            researchId,
+            topic,
+            sourceTitle: source.title,
+            sourceUrl: source.url,
+            relevance: source.relevance,
+            timestamp: Date.now(),
+          },
+        });
+      }
+
+      console.log(`✅ Stored research and ${sources.length} sources in AgentDB`);
+
+      // Store as an episode for reflexive learning
+      await this.agentDB.storeEpisode({
+        context: `Research on topic: ${topic}`,
+        action: `Gathered ${sources.length} sources using ${this.getAgentCount('standard')} agents`,
+        outcome: `Successfully collected ${sources.length} relevant sources`,
+        success: sources.length > 0,
+        timestamp: Date.now(),
+        metadata: {
+          topic,
+          researchId,
+          sourceCount: sources.length,
+        },
+      });
+    } catch (error) {
+      console.error('Failed to store findings in AgentDB:', error);
+      // Continue without storage - graceful degradation
+    }
   }
 
   /**
@@ -500,17 +587,48 @@ export class ResearchOrchestrator {
   }
 
   /**
-   * Search previous research (placeholder for vector search)
+   * Search previous research using vector similarity search
    */
   async searchPreviousResearch(query: string, limit: number = 5) {
-    // TODO: Implement AgentDB vector search
-    return Array.from(this.resultsCache.entries())
-      .slice(0, limit)
-      .map(([id, result]) => ({
-        id,
-        text: result.summary,
-        metadata: { query },
+    if (!this.initialized) {
+      console.warn('⚠️  AgentDB not initialized, using cache fallback');
+      return Array.from(this.resultsCache.entries())
+        .slice(0, limit)
+        .map(([id, result]) => ({
+          id,
+          text: result.summary,
+          metadata: { query },
+        }));
+    }
+
+    try {
+      // Generate embedding for the search query
+      const queryEmbedding = await this.embeddings.generateEmbedding(query);
+
+      // Search for similar research in AgentDB
+      const results = await this.agentDB.search(queryEmbedding, limit, 0.7);
+
+      console.log(`🔍 Found ${results.length} similar research items for query: "${query}"`);
+
+      return results.map(result => ({
+        id: result.id,
+        text: result.metadata.topic || 'Unknown topic',
+        metadata: {
+          ...result.metadata,
+          similarity: result.score,
+          query,
+        },
       }));
+    } catch (error) {
+      console.error('Vector search failed, using cache fallback:', error);
+      return Array.from(this.resultsCache.entries())
+        .slice(0, limit)
+        .map(([id, result]) => ({
+          id,
+          text: result.summary,
+          metadata: { query },
+        }));
+    }
   }
 
   private getAgentCount(depth: ResearchDepth): number {
