@@ -19,7 +19,10 @@
     "zod": "^3.22.4",
     "dotenv": "^16.3.1",
     "@researchhive/ai": "workspace:*",
-    "@researchhive/database": "workspace:*"
+    "@researchhive/database": "workspace:*",
+    "@researchhive/monitoring": "workspace:*",
+    "@researchhive/cache": "workspace:*",
+    "@researchhive/email": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20",

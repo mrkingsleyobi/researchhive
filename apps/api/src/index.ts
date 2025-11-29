@@ -7,6 +7,9 @@ import { appRouter } from './router';
 import { createContext } from './context';
 import { initializeWebSocket } from './websocket';
 import { initializeResearchOrchestrator } from '@researchhive/ai';
+import { initializeSentryNode, captureException } from '@researchhive/monitoring';
+import { getMetrics, httpRequestDuration, httpRequestTotal, websocketConnections } from '@researchhive/monitoring';
+import { getCache } from '@researchhive/cache';
 
 const fastify = Fastify({
   logger: true,
@@ -14,6 +17,20 @@ const fastify = Fastify({
 });
 
 async function main() {
+  // Initialize monitoring (Sentry)
+  initializeSentryNode({
+    environment: process.env.NODE_ENV || 'development',
+    release: process.env.SENTRY_RELEASE || 'researchhive@1.0.0',
+  });
+
+  // Initialize Redis cache
+  try {
+    const cache = await getCache();
+    console.log('✅ Redis cache initialized');
+  } catch (error) {
+    console.warn('⚠️  Redis cache failed to initialize:', error);
+  }
+
   // Register plugins
   await fastify.register(helmet);
   await fastify.register(cors, {
@@ -24,6 +41,24 @@ async function main() {
   await fastify.register(rateLimit, {
     max: 100,
     timeWindow: '1 minute',
+  });
+
+  // Request metrics middleware
+  fastify.addHook('onRequest', async (request, reply) => {
+    (request as any).startTime = Date.now();
+  });
+
+  fastify.addHook('onResponse', async (request, reply) => {
+    const duration = (Date.now() - (request as any).startTime) / 1000;
+    httpRequestDuration.observe(
+      { method: request.method, route: request.routerPath || 'unknown', status_code: reply.statusCode },
+      duration
+    );
+    httpRequestTotal.inc({
+      method: request.method,
+      route: request.routerPath || 'unknown',
+      status_code: reply.statusCode,
+    });
   });
 
   // Register tRPC
@@ -41,6 +76,18 @@ async function main() {
   // Health check
   fastify.get('/health', async () => {
     return { status: 'ok', timestamp: new Date().toISOString() };
+  });
+
+  // Prometheus metrics endpoint
+  fastify.get('/metrics', async (request, reply) => {
+    try {
+      const metrics = await getMetrics();
+      reply.header('Content-Type', 'text/plain; version=0.0.4');
+      return metrics;
+    } catch (error) {
+      captureException(error as Error, { endpoint: '/metrics' });
+      reply.status(500).send({ error: 'Failed to generate metrics' });
+    }
   });
 
   // Start server

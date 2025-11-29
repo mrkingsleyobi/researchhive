@@ -1,0 +1,19 @@
+{
+  "name": "@researchhive/monitoring",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "scripts": {
+    "lint": "eslint . --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sentry/node": "^7.99.0",
+    "@sentry/profiling-node": "^7.99.0",
+    "prom-client": "^15.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
