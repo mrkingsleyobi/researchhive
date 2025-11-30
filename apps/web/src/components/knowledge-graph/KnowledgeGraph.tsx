@@ -21,6 +21,7 @@ import ReactFlow, {
   Panel,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { trpc } from '@/lib/trpc';
 
 export interface KnowledgeNode {
   id: string;
@@ -67,93 +68,89 @@ export function KnowledgeGraph({
 }: KnowledgeGraphProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [layout, setLayout] = useState<'force' | 'hierarchical' | 'circular'>('force');
 
-  // Fetch graph data
+  // Fetch graph data using tRPC
+  const { data, isLoading, error, refetch } = trpc.research.getKnowledgeGraph.useQuery(
+    { researchId },
+    {
+      enabled: !!researchId,
+      retry: 2,
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  // Update nodes and edges when data changes
   useEffect(() => {
-    fetchGraphData();
-  }, [researchId]);
-
-  const fetchGraphData = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // TODO: Replace with actual API endpoint
-      const response = await fetch(`/api/knowledge-graph/${researchId}`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch graph data');
-      }
-
-      const data = await response.json();
-      const { nodes: graphNodes, relationships } = data;
-
+    if (data && data.nodes && data.edges) {
       // Convert to React Flow format
-      const flowNodes = convertNodesToFlow(graphNodes);
-      const flowEdges = convertEdgesToFlow(relationships);
+      const flowNodes = convertNodesToFlow(data.nodes);
+      const flowEdges = convertEdgesToFlow(data.edges);
 
       setNodes(flowNodes);
       setEdges(flowEdges);
-    } catch (err) {
-      console.error('Graph fetch error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load graph');
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [data, setNodes, setEdges]);
 
   /**
    * Convert knowledge nodes to React Flow nodes
    */
-  const convertNodesToFlow = (knowledgeNodes: KnowledgeNode[]): Node[] => {
-    return knowledgeNodes.map((node, index) => ({
-      id: node.id,
-      type: 'default',
-      data: {
-        label: node.label,
-        nodeType: node.type,
-        properties: node.properties,
-      },
-      position: calculateNodePosition(index, knowledgeNodes.length, layout),
-      style: {
-        background: NODE_COLORS[node.type],
-        color: 'white',
-        border: '2px solid #fff',
-        borderRadius: '8px',
-        padding: '10px',
-        fontSize: '12px',
-        fontWeight: '500',
-      },
-    }));
+  const convertNodesToFlow = (knowledgeNodes: any[]): Node[] => {
+    return knowledgeNodes.map((node, index) => {
+      const nodeType = (node.type || 'Topic') as keyof typeof NODE_COLORS;
+      const label = node.data?.label || node.label || 'Unknown';
+
+      return {
+        id: node.id,
+        type: 'default',
+        data: {
+          label,
+          nodeType,
+          properties: node.data || node.properties || {},
+        },
+        position: calculateNodePosition(index, knowledgeNodes.length, layout),
+        style: {
+          background: NODE_COLORS[nodeType] || NODE_COLORS.Topic,
+          color: 'white',
+          border: '2px solid #fff',
+          borderRadius: '8px',
+          padding: '10px',
+          fontSize: '12px',
+          fontWeight: '500',
+        },
+      };
+    });
   };
 
   /**
    * Convert knowledge relationships to React Flow edges
    */
-  const convertEdgesToFlow = (relationships: KnowledgeRelationship[]): Edge[] => {
-    return relationships.map((rel, index) => ({
-      id: `edge-${index}`,
-      source: rel.from,
-      target: rel.to,
-      label: rel.type.replace(/_/g, ' '),
-      type: 'smoothstep',
-      animated: rel.type === 'RELATES_TO',
-      style: {
-        stroke: EDGE_COLORS[rel.type],
-        strokeWidth: 2,
-      },
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        color: EDGE_COLORS[rel.type],
-      },
-      data: {
-        relationshipType: rel.type,
-        properties: rel.properties,
-      },
-    }));
+  const convertEdgesToFlow = (relationships: any[]): Edge[] => {
+    return relationships.map((rel, index) => {
+      const edgeType = (rel.type || 'RELATES_TO') as keyof typeof EDGE_COLORS;
+      const edgeId = rel.id || `edge-${index}`;
+
+      return {
+        id: edgeId,
+        source: rel.source || rel.from,
+        target: rel.target || rel.to,
+        label: edgeType.replace(/_/g, ' '),
+        type: 'smoothstep',
+        animated: edgeType === 'RELATES_TO',
+        style: {
+          stroke: EDGE_COLORS[edgeType] || EDGE_COLORS.RELATES_TO,
+          strokeWidth: 2,
+        },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: EDGE_COLORS[edgeType] || EDGE_COLORS.RELATES_TO,
+        },
+        data: {
+          relationshipType: edgeType,
+          properties: rel.data || rel.properties || {},
+        },
+      };
+    });
   };
 
   /**
@@ -244,7 +241,7 @@ export function KnowledgeGraph({
     );
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
@@ -256,16 +253,37 @@ export function KnowledgeGraph({
   }
 
   if (error) {
+    const errorMessage = error instanceof Error ? error.message : (error as any)?.message || 'Failed to load graph';
+    const isNotAvailable = errorMessage.includes('not available');
+
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-center max-w-md">
+          <p className="text-red-600 mb-2">
+            {isNotAvailable ? '⚠️ Knowledge Graph Not Available' : '❌ Error Loading Graph'}
+          </p>
+          <p className="text-gray-600 text-sm mb-4">{errorMessage}</p>
+          {!isNotAvailable && (
+            <button
+              onClick={() => refetch()}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Retry
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (!data || !data.nodes || data.nodes.length === 0) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600">Error: {error}</p>
-          <button
-            onClick={fetchGraphData}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Retry
-          </button>
+          <p className="text-gray-600">No knowledge graph data available for this research.</p>
+          <p className="text-sm text-gray-500 mt-2">
+            Graph visualization will appear once the research is analyzed.
+          </p>
         </div>
       </div>
     );

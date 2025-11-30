@@ -24,3 +24,6 @@ export type { Neo4jConfig, KnowledgeNode, KnowledgeRelationship, GraphQuery } fr
 
 export { MCPServer, MCPClient, getMCPServer, createMCPClient } from './services/mcp-service';
 export type { MCPTool, MCPResource, MCPPrompt, MCPServerConfig } from './services/mcp-service';
+
+// Research Agents
+export * from './agents';
