@@ -3,6 +3,9 @@ import { db } from '@researchhive/database';
 import { claudeClient } from './claude-client';
 import { AgentDBService, initializeAgentDB, getAgentDB } from './agentdb-service';
 import { EmbeddingsService, getEmbeddings } from './embeddings-service';
+import { WebScraperAgent, AcademicAgent, NewsAgent, SocialAgent } from '../agents';
+import { CredibilityScorer, type ScoredResult } from '../agents/credibility-scorer';
+import { DuplicateDetector } from '../agents/duplicate-detector';
 import path from 'path';
 
 export interface ResearchConfig {
@@ -48,14 +51,27 @@ export class ResearchOrchestrator {
   private initialized: boolean = false;
   private progressEmitter?: ProgressEventEmitter;
 
+  // Real research agents
+  private webAgent: WebScraperAgent;
+  private academicAgent: AcademicAgent;
+  private newsAgent: NewsAgent;
+  private socialAgent: SocialAgent;
+
   constructor(progressEmitter?: ProgressEventEmitter) {
     this.agentDB = getAgentDB();
     this.embeddings = getEmbeddings();
     this.progressEmitter = progressEmitter;
+
+    // Initialize real research agents
+    this.webAgent = new WebScraperAgent({ maxResults: 10 });
+    this.academicAgent = new AcademicAgent({ maxResults: 10 });
+    this.newsAgent = new NewsAgent({ maxResults: 10 });
+    this.socialAgent = new SocialAgent({ maxResults: 10 });
+
     this.initialize().catch(error => {
       console.error('Failed to initialize ResearchOrchestrator:', error);
     });
-    console.log('🧠 Research Orchestrator initialized');
+    console.log('🧠 Research Orchestrator initialized with real agents');
   }
 
   /**
@@ -193,140 +209,110 @@ export class ResearchOrchestrator {
   /**
    * Gather sources using multi-agent approach with parallel execution
    *
-   * Uses real Claude AI agents when API key is configured, otherwise falls back to simulation.
+   * Uses real research agents (web scraper, academic, news, social)
    */
   private async gatherSources(
     topic: string,
     agentCount: number
   ): Promise<Array<{ title: string; url: string; relevance: number }>> {
-    console.log(`📚 ${agentCount} agents gathering sources for: ${topic}`);
+    console.log(`📚 Deploying ${agentCount} specialized agents for: ${topic}`);
 
-    // Define research focuses for agents to specialize in
-    const focuses = [
-      'overview and fundamentals',
-      'recent developments and trends',
-      'best practices and guidelines',
-      'case studies and examples',
-      'research papers and academic sources',
-      'industry reports and analysis',
-      'expert opinions and thought leadership',
-      'tools and technologies',
-    ];
-
-    // Check if real AI is available
-    const useRealAI = claudeClient.isRealAIAvailable();
-
-    if (useRealAI) {
-      console.log('🤖 Using real Claude AI for research');
-      return this.gatherSourcesWithAI(topic, agentCount, focuses);
-    } else {
-      console.log('🔬 Using simulation mode (set ANTHROPIC_API_KEY for real AI)');
-      return this.gatherSourcesSimulation(topic, agentCount, focuses);
-    }
+    return this.gatherSourcesWithRealAgents(topic, agentCount);
   }
 
   /**
-   * Gather sources using real Claude AI agents
+   * Gather sources using real research agents
    */
-  private async gatherSourcesWithAI(
+  private async gatherSourcesWithRealAgents(
     topic: string,
-    agentCount: number,
-    focuses: string[]
+    agentCount: number
   ): Promise<Array<{ title: string; url: string; relevance: number }>> {
-    // Deploy AI agents in parallel
-    const agentPromises = Array.from({ length: agentCount }, async (_, index) => {
-      const focus = focuses[index % focuses.length];
-      const agentId = `Agent-${index + 1}`;
+    const maxResultsPerAgent = Math.ceil(20 / agentCount); // Total ~20 sources
 
-      console.log(`  🤖 ${agentId}: Researching ${topic} - ${focus}`);
+    // Deploy agents in parallel
+    const agentPromises: Promise<any[]>[] = [];
 
-      try {
-        const response = await claudeClient.research({
-          topic,
-          focus,
-          depth: agentCount <= 4 ? 'quick' : agentCount <= 8 ? 'standard' : 'deep',
-        });
+    // Always use web scraper (highest priority)
+    console.log(`  🌐 WebScraperAgent: Searching web for "${topic}"`);
+    agentPromises.push(
+      this.webAgent.search(topic, { maxResults: maxResultsPerAgent * 2 })
+        .catch(err => {
+          console.error('  ❌ WebScraperAgent failed:', err.message);
+          return [];
+        })
+    );
 
-        return response.sources.map(source => ({
-          ...source,
-          focus,
-          agentId,
-        }));
-      } catch (error) {
-        console.error(`  ❌ ${agentId} failed:`, error instanceof Error ? error.message : 'Unknown error');
-        // Return empty array on failure - other agents may succeed
-        return [];
-      }
-    });
+    // Use academic agent if depth is standard or deep
+    if (agentCount >= 4) {
+      console.log(`  🎓 AcademicAgent: Searching academic sources for "${topic}"`);
+      agentPromises.push(
+        this.academicAgent.search(topic, { maxResults: maxResultsPerAgent })
+          .catch(err => {
+            console.error('  ❌ AcademicAgent failed:', err.message);
+            return [];
+          })
+      );
+    }
+
+    // Use news agent if depth is standard or deep
+    if (agentCount >= 6) {
+      console.log(`  📰 NewsAgent: Searching news for "${topic}"`);
+      agentPromises.push(
+        this.newsAgent.search(topic, { maxResults: maxResultsPerAgent })
+          .catch(err => {
+            console.error('  ❌ NewsAgent failed:', err.message);
+            return [];
+          })
+      );
+    }
+
+    // Use social agent if depth is deep
+    if (agentCount >= 8) {
+      console.log(`  💬 SocialAgent: Searching social media for "${topic}"`);
+      agentPromises.push(
+        this.socialAgent.search(topic, { maxResults: maxResultsPerAgent })
+          .catch(err => {
+            console.error('  ❌ SocialAgent failed:', err.message);
+            return [];
+          })
+      );
+    }
 
     // Wait for all agents to complete
     const agentResults = await Promise.all(agentPromises);
 
-    // Flatten results from all agents
-    const allSources = agentResults.flat();
+    // Flatten all results
+    const allResults = agentResults.flat();
+    console.log(`  📊 Raw results: ${allResults.length} sources from ${agentPromises.length} agents`);
 
-    // Aggregate and deduplicate results
-    const uniqueSources = this.deduplicateSources(allSources);
+    // Remove duplicates
+    const uniqueResults = DuplicateDetector.removeDuplicates(allResults);
+    console.log(`  🔍 After deduplication: ${uniqueResults.length} unique sources`);
 
-    // Sort by relevance (best sources first)
-    const sortedSources = uniqueSources
-      .sort((a, b) => b.relevance - a.relevance)
-      .slice(0, Math.max(3, Math.floor(agentCount * 2))); // Up to 2x sources per agent
+    // Score credibility
+    const scoredResults = CredibilityScorer.scoreResults(uniqueResults);
+    console.log(`  ⭐ Credibility scoring complete`);
 
-    console.log(`  ✅ Collected ${sortedSources.length} unique sources from AI agents`);
+    // Filter by minimum credibility (60+)
+    const filteredResults = CredibilityScorer.filterByCredibility(scoredResults, 60);
+    console.log(`  ✅ After credibility filter: ${filteredResults.length} high-quality sources`);
 
-    return sortedSources.map(({ title, url, relevance }) => ({
-      title,
-      url,
-      relevance,
-    }));
-  }
+    // Get statistics
+    const stats = CredibilityScorer.getStatistics(filteredResults);
+    console.log(`  📈 Quality stats: avg=${stats.averageScore}, high=${stats.highCredibility}, medium=${stats.mediumCredibility}`);
 
-  /**
-   * Gather sources using simulation (fallback when no API key)
-   */
-  private async gatherSourcesSimulation(
-    topic: string,
-    agentCount: number,
-    focuses: string[]
-  ): Promise<Array<{ title: string; url: string; relevance: number }>> {
-    // Simulate parallel agent execution
-    const agentPromises = Array.from({ length: agentCount }, async (_, index) => {
-      const focus = focuses[index % focuses.length];
-      const agentId = `Agent-${index + 1}`;
+    // Return top results sorted by credibility
+    const topResults = filteredResults
+      .slice(0, Math.min(agentCount * 2, 20)) // Cap at 20 sources
+      .map(result => ({
+        title: result.title,
+        url: result.url,
+        relevance: result.credibilityScore / 100, // Convert 0-100 to 0-1
+      }));
 
-      console.log(`  🤖 ${agentId}: Researching ${topic} - ${focus}`);
+    console.log(`  ✨ Final result: ${topResults.length} high-quality, unique sources`);
 
-      // Simulate agent processing time (varies by agent workload)
-      await this.simulateAgentWork(100 + Math.random() * 200);
-
-      return {
-        title: `${topic} - ${focus.charAt(0).toUpperCase() + focus.slice(1)}`,
-        url: `https://example.com/research/${this.slugify(topic)}/${this.slugify(focus)}`,
-        relevance: 0.75 + Math.random() * 0.25, // 0.75-1.0 range
-        focus,
-        agentId,
-      };
-    });
-
-    // Wait for all agents to complete (parallel execution)
-    const allSources = await Promise.all(agentPromises);
-
-    // Aggregate and deduplicate results
-    const uniqueSources = this.deduplicateSources(allSources);
-
-    // Sort by relevance (best sources first)
-    const sortedSources = uniqueSources
-      .sort((a, b) => b.relevance - a.relevance)
-      .slice(0, Math.max(3, Math.floor(agentCount * 0.75))); // Top 75% of agents' findings
-
-    console.log(`  ✅ Collected ${sortedSources.length} unique sources`);
-
-    return sortedSources.map(({ title, url, relevance }) => ({
-      title,
-      url,
-      relevance,
-    }));
+    return topResults;
   }
 
   /**
