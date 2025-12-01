@@ -6,6 +6,8 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
 [![Claude AI](https://img.shields.io/badge/Claude-Sonnet%204.5-orange)](https://www.anthropic.com/claude)
 [![AI Agents](https://img.shields.io/badge/AI-Multi--Agent%20System-green)](https://github.com/mrkingsleyobi/researchhive)
+[![Version](https://img.shields.io/badge/Version-1.0.0--beta-yellow)](CHANGELOG.md)
+[![Status](https://img.shields.io/badge/Status-Beta%20Launch%20Ready-success)](docs/BETA_LAUNCH_STATUS.md)
 
 > **Transform scattered information into actionable insights with autonomous AI research agents**
 
@@ -222,11 +224,28 @@ curl http://localhost:4000/trpc/research.getResults?input=%7B%22id%22%3A%22RESEA
 
 ## 📚 Documentation
 
-- **[Real AI Setup](docs/REAL_AI_SETUP.md)** - Complete Claude AI integration guide
+### 🚀 Getting Started
+- **[README](README.md)** - This file, project overview and quick start
+- **[Beta User Guide](docs/BETA_USER_GUIDE.md)** - Complete guide for beta testers
+- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to ResearchHive
+- **[Changelog](CHANGELOG.md)** - Version history and release notes
+
+### 🔧 Deployment & Operations
+- **[Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - Complete production deployment guide
+- **[Deployment Checklist](DEPLOYMENT_CHECKLIST.md)** - Step-by-step deployment verification
+- **[Beta Launch Status](docs/BETA_LAUNCH_STATUS.md)** - Current status and readiness report
+
+### 💻 Developer Documentation
+- **[API Reference](docs/API_REFERENCE.md)** - Complete API documentation
 - **[Architecture](docs/ARCHITECTURE.md)** - System design and components
-- **[Claude Flow Integration](docs/CLAUDE_FLOW_INTEGRATION.md)** - Alternative AI approaches
+- **[Real AI Setup](docs/REAL_AI_SETUP.md)** - Claude AI integration guide
 - **[Authentication Setup](docs/AUTH_SETUP.md)** - Logto configuration guide
+
+### 📖 Technical References
+- **[Claude Flow Integration](docs/CLAUDE_FLOW_INTEGRATION.md)** - Alternative AI approaches
 - **[AI Workflow Validation](docs/AI_WORKFLOW_VALIDATION.md)** - Test results and benchmarks
+- **[Product Requirements](docs/PRD.md)** - Detailed product specification
+- **[Roadmap](docs/ROADMAP.md)** - Future development plans
 
 ---
 
@@ -410,14 +429,34 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📊 Project Status
 
-- ✅ **Multi-Agent Orchestration** - Production-ready
-- ✅ **Claude AI Integration** - Fully functional with fallback
-- ✅ **Database Persistence** - SQLite (dev) / PostgreSQL-ready
-- ✅ **Authentication** - Logto integrated with demo mode
-- ✅ **Real-Time Progress** - Live research status updates
-- ⏳ **Streaming Support** - Planned for v2.0
-- ⏳ **Web Search Integration** - Planned for v2.0
-- ⏳ **RAG Integration** - Planned for v2.0
+**Current Version:** 1.0.0-beta ([Changelog](CHANGELOG.md))
+**Status:** ✅ **Production-Ready - Beta Launch** ([Status Report](docs/BETA_LAUNCH_STATUS.md))
+
+### Completed Features (v1.0.0-beta)
+
+- ✅ **Multi-Agent Research System** - 8 specialized AI agents
+- ✅ **Real API Integrations** - Google, arXiv, PubMed, NewsAPI, Reddit, Twitter
+- ✅ **Credibility Scoring** - Multi-factor source quality algorithm
+- ✅ **Knowledge Graph** - Interactive Neo4j-powered visualization
+- ✅ **JWT Authentication** - Logto integration with real token validation
+- ✅ **PostgreSQL Database** - Production-ready with Prisma ORM
+- ✅ **Monitoring & Analytics** - Sentry, PostHog, Prometheus
+- ✅ **Redis Caching** - Performance optimization layer
+- ✅ **Load Testing** - K6 scripts with performance benchmarks
+- ✅ **Email Notifications** - Resend integration
+- ✅ **CI/CD Pipeline** - Automated testing and deployment
+- ✅ **Comprehensive Documentation** - 14 docs, 10,285+ lines
+
+### Planned Features
+
+- ⏳ **PDF/CSV Export** - Planned for v1.1.0 (Q1 2025)
+- ⏳ **Team Collaboration** - Planned for v1.2.0 (Q2 2025)
+- ⏳ **Multi-Language Support** - Planned for v1.1.0 (Q1 2025)
+- ⏳ **RAG Integration** - Planned for v2.0.0 (Q3 2025)
+- ⏳ **Streaming Results** - Planned for v2.0.0 (Q3 2025)
+- ⏳ **Mobile Apps** - Planned for v2.0.0 (Q3 2025)
+
+See [Roadmap](docs/ROADMAP.md) for detailed future plans.
 
 ---
 

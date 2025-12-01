@@ -1,0 +1,141 @@
+name: 🐛 Bug Report
+description: Report a bug or issue with ResearchHive
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the sections below to help us fix it quickly.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the bug clearly and concisely.
+      placeholder: When I click "Start Research", the page freezes...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      description: What should have happened instead?
+      placeholder: The research should start and show progress...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce this bug? Please be specific.
+      placeholder: |
+        1. Go to dashboard
+        2. Click "New Research"
+        3. Enter topic: "AI in Healthcare"
+        4. Select depth: "Standard"
+        5. Click "Start Research"
+        6. Page freezes at this point
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this bug?
+      options:
+        - Critical (App crashes, data loss, security issue)
+        - High (Major feature broken, blocking work)
+        - Medium (Feature partially broken, workaround exists)
+        - Low (Minor issue, cosmetic problem)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      description: Which browser are you using?
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Other (specify in additional context)
+    validations:
+      required: true
+
+  - type: input
+    id: browser-version
+    attributes:
+      label: Browser Version
+      description: What version of the browser? (e.g., Chrome 119)
+      placeholder: "119.0.6045.159"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: Which OS are you using?
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS 14 (Sonoma)
+        - macOS 13 (Ventura)
+        - macOS 12 (Monterey)
+        - Linux (Ubuntu)
+        - Linux (Other)
+        - iOS
+        - Android
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: research-depth
+    attributes:
+      label: Research Depth (if applicable)
+      description: What research depth were you using when the bug occurred?
+      options:
+        - Not applicable
+        - Quick
+        - Standard
+        - Deep
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: |
+        Add any other context about the problem here.
+        - Screenshots
+        - Console errors (press F12 > Console tab)
+        - Network errors (F12 > Network tab)
+        - Research ID (if applicable)
+      placeholder: |
+        Console shows error: "TypeError: Cannot read property..."
+        Screenshot attached
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues to make sure this isn't a duplicate
+          required: true
+        - label: I am using the latest version of ResearchHive
+          required: false
+        - label: I have included all relevant information above
+          required: true

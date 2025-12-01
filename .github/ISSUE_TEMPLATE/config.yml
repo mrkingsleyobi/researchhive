@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 General Questions
+    url: https://github.com/mrkingsleyobi/researchhive/discussions
+    about: Ask questions and discuss ResearchHive with the community
+  - name: 📚 Documentation
+    url: https://github.com/mrkingsleyobi/researchhive/tree/main/docs
+    about: Read the complete documentation
+  - name: 🚀 Beta Testing Feedback
+    url: https://github.com/mrkingsleyobi/researchhive/discussions/categories/beta-feedback
+    about: Share general feedback about the beta (not a bug or feature request)

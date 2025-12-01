@@ -1,0 +1,118 @@
+name: 💡 Feature Request
+description: Suggest a new feature or improvement for ResearchHive
+title: "[Feature]: "
+labels: ["enhancement", "needs-review"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature! We appreciate your input in making ResearchHive better.
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: What feature would you like to see?
+      placeholder: I would like to be able to export research results as PDF...
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Use Case
+      description: What problem does this feature solve? Why do you need it?
+      placeholder: |
+        Currently, I have to manually copy-paste research results into a document.
+        I need to share research with colleagues who don't have ResearchHive access.
+        A PDF export would save time and make sharing easier.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: How do you envision this feature working?
+      placeholder: |
+        Add an "Export as PDF" button on the research results page.
+        The PDF should include:
+        - Summary
+        - Key findings
+        - All sources with links
+        - Knowledge graph visualization
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What workarounds are you currently using? What other solutions did you consider?
+      placeholder: |
+        Current workaround: Copy-paste into Google Docs, then export as PDF.
+        Alternative considered: Export as CSV, but that doesn't preserve formatting.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Critical (Blocking my use of ResearchHive)
+        - High (Would significantly improve my workflow)
+        - Medium (Nice to have, would use it often)
+        - Low (Minor improvement, would use occasionally)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: user-type
+    attributes:
+      label: User Type
+      description: How would you describe your use case?
+      options:
+        - Academic Researcher
+        - Business Professional
+        - Student
+        - Content Creator
+        - Developer
+        - Other
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: willingness
+    attributes:
+      label: Contribution
+      description: Would you be willing to help with this feature?
+      options:
+        - label: I would be willing to test this feature
+        - label: I would be willing to contribute code (if open source)
+        - label: I would be willing to provide detailed feedback
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or mockups about the feature request here.
+      placeholder: |
+        Mockup: [attach image]
+        Similar feature in other tools: [link]
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing feature requests to make sure this isn't a duplicate
+          required: true
+        - label: This feature aligns with ResearchHive's core mission (AI-powered research automation)
+          required: true
